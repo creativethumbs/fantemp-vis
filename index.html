@@ -16,12 +16,12 @@
         shape-rendering: crispEdges;
       }
       .outer {
-          width: 600px;
+          width: 800px;
           height: 1600px;
           overflow: auto;
       }
       .inner {
-          width: 600px;
+          width: 800px;
           height: 1500px;
       }
 
@@ -48,13 +48,13 @@
       var dataset = [[25, 5340], [25, 5340], [25, 5580], [25, 4860], [25, 5100], [25, 5340], [25, 5400], [25, 5100], [25, 5220], [25, 5160], [25, 5220], [25, 4800], [24, 5280], [24, 5520], [24, 5460], [24, 4860], [24, 5280], [24, 5280], [24, 5340], [24, 4860], [23, 5220], [23, 5520], [23, 5340], [23, 5220], [23, 5100], [23, 5340], [23, 5520], [23, 4860], [23, 5340], [23, 5400], [23, 5460], [23, 4920], [22, 5220], [22, 5520], [22, 5460], [22, 4980], [25, 5160], [25, 5220], [25, 5520], [25, 4800], [24, 5400], [24, 5400], [24, 5460], [24, 4980], [28, 6660], [28, 7020], [28, 7140], [28, 0], [27, 6960], [27, 7020], [27, 6720], [27, 0], [26, 6900], [26, 7080], [26, 6900], [26, 0], [26, 6480], [26, 6780], [26, 7020], [26, 0], [27, 6660], [27, 6960], [27, 6720], [27, 0], [26, 6540], [26, 6840], [26, 6780], [26, 0], [26, 6540], [26, 7080], [26, 6840], [26, 0], [26, 6840], [26, 7140], [26, 6780], [26, 0], [26, 6780], [26, 7080], [26, 6780], [26, 0], [27, 6780], [27, 7080], [27, 7020], [27, 0], [25, 6660], [25, 6960], [25, 6840], [25, 0]];
 
       //Width and height
-      var w = 600;
+      var w = 800;
       var h = 1500;
-      var padding = 50;
+      var padding = 80;
       var xScale = d3.scale.linear()
                  .domain([d3.min(dataset, function(d) { return d[0]; })-2, 
                           d3.max(dataset, function(d) { return d[0]; })])
-                 .range([padding, w - padding * 2]);
+                 .range([padding, w - padding*(2/3)]);
 
       var yScale = d3.scale.linear()
                  .domain([d3.min(dataset, function(d) { return d[1]; }), d3.max(dataset, function(d) { return d[1]; })+200])
@@ -66,10 +66,10 @@
       var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
       var yAxis = d3.svg.axis().scale(yScale).orient("left");
 
-      // add the tooltip area to the webpage
-      var tooltip = d3.select("body").append("div")
-          .attr("class", "tooltip")
+      var tooltip = d3.select("body").append("div")   
+          .attr("class", "tooltip")               
           .style("opacity", 0);
+
       //Create scale functions
 
       var cValue = function(d) { return d[0] ;},
@@ -89,8 +89,8 @@
           .call(xAxis)
         .append("text")
           .attr("class", "label")
-          .attr("x", w-100)
-          .attr("y", 40)
+          .attr("x", w-padding)
+          .attr("y", padding/2)
           .style("text-anchor", "end")
           .text("Temperature");
       // y-axis
@@ -101,7 +101,7 @@
         .append("text")
           .attr("class", "label")
           .attr("transform", "rotate(-90)")
-          .attr("x", -50)
+          .attr("x", -padding)
           .attr("y", 16)
           .style("text-anchor", "end")
           .text("Fan Speed");
@@ -114,9 +114,22 @@
          .attr("cx", function(d) {return xScale(d[0]);})
          .attr("cy", function(d) {return yScale(d[1]);})
          .attr("r", 4)
-         .style("fill", function(d) { return color(cValue(d));});
+         .style("fill", function(d) { return color(cValue(d));})
+         .on("mouseover", function(d) {      
+            tooltip.transition()        
+                .duration(200)      
+                .style("opacity", .9);      
+            tooltip .html("Temperature: " + d[0] + 
+                          "<br/>"  + "Fan Speed: " + d[1])  
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");    
+            })                  
+          .on("mouseout", function(d) {       
+              tooltip.transition()        
+                  .duration(500)      
+                  .style("opacity", 0);   
+          });
 
-      
     </script>
   </body>
 </html>
