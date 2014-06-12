@@ -6,14 +6,30 @@
     <title>Fan Speed vs Temperature</title>
     <script type="text/javascript" src="../d3/d3.min.js"></script>
     <style type="text/css">
+      body {
+        font: 12px sans-serif;
+      }
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
       .outer {
           width: 600px;
-          height: 2000px;
+          height: 1600px;
           overflow: auto;
       }
       .inner {
           width: 600px;
           height: 1500px;
+      }
+
+      .tooltip {
+        position: absolute;
+        width: 200px;
+        height: 28px;
+        pointer-events: none;
       }
       svg {
           display: block;
@@ -29,19 +45,15 @@
     </div>
 </div>
     <script type="text/javascript">
+      var dataset = [[25, 5340], [25, 5340], [25, 5580], [25, 4860], [25, 5100], [25, 5340], [25, 5400], [25, 5100], [25, 5220], [25, 5160], [25, 5220], [25, 4800], [24, 5280], [24, 5520], [24, 5460], [24, 4860], [24, 5280], [24, 5280], [24, 5340], [24, 4860], [23, 5220], [23, 5520], [23, 5340], [23, 5220], [23, 5100], [23, 5340], [23, 5520], [23, 4860], [23, 5340], [23, 5400], [23, 5460], [23, 4920], [22, 5220], [22, 5520], [22, 5460], [22, 4980], [25, 5160], [25, 5220], [25, 5520], [25, 4800], [24, 5400], [24, 5400], [24, 5460], [24, 4980], [28, 6660], [28, 7020], [28, 7140], [28, 0], [27, 6960], [27, 7020], [27, 6720], [27, 0], [26, 6900], [26, 7080], [26, 6900], [26, 0], [26, 6480], [26, 6780], [26, 7020], [26, 0], [27, 6660], [27, 6960], [27, 6720], [27, 0], [26, 6540], [26, 6840], [26, 6780], [26, 0], [26, 6540], [26, 7080], [26, 6840], [26, 0], [26, 6840], [26, 7140], [26, 6780], [26, 0], [26, 6780], [26, 7080], [26, 6780], [26, 0], [27, 6780], [27, 7080], [27, 7020], [27, 0], [25, 6660], [25, 6960], [25, 6840], [25, 0]];
 
       //Width and height
       var w = 600;
       var h = 1500;
       var padding = 30;
-      var xScale = d3.scale.linear().range([0, w]);
-      var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
-      
-      var dataset = [[25, 5340], [25, 5340], [25, 5580], [25, 4860], [25, 5100], [25, 5340], [25, 5400], [25, 5100], [25, 5220], [25, 5160], [25, 5220], [25, 4800], [24, 5280], [24, 5520], [24, 5460], [24, 4860], [24, 5280], [24, 5280], [24, 5340], [24, 4860], [23, 5220], [23, 5520], [23, 5340], [23, 5220], [23, 5100], [23, 5340], [23, 5520], [23, 4860], [23, 5340], [23, 5400], [23, 5460], [23, 4920], [22, 5220], [22, 5520], [22, 5460], [22, 4980], [25, 5160], [25, 5220], [25, 5520], [25, 4800], [24, 5400], [24, 5400], [24, 5460], [24, 4980], [28, 6660], [28, 7020], [28, 7140], [28, 0], [27, 6960], [27, 7020], [27, 6720], [27, 0], [26, 6900], [26, 7080], [26, 6900], [26, 0], [26, 6480], [26, 6780], [26, 7020], [26, 0], [27, 6660], [27, 6960], [27, 6720], [27, 0], [26, 6540], [26, 6840], [26, 6780], [26, 0], [26, 6540], [26, 7080], [26, 6840], [26, 0], [26, 6840], [26, 7140], [26, 6780], [26, 0], [26, 6780], [26, 7080], [26, 6780], [26, 0], [27, 6780], [27, 7080], [27, 7020], [27, 0], [25, 6660], [25, 6960], [25, 6840], [25, 0]];
-
-      //Create scale functions
       var xScale = d3.scale.linear()
-                 .domain([d3.min(dataset, function(d) { return d[0]; }), d3.max(dataset, function(d) { return d[0]; })])
+                 .domain([d3.min(dataset, function(d) { return d[0]; }), 
+                          d3.max(dataset, function(d) { return d[0]; })])
                  .range([padding, w - padding * 2]);
 
       var yScale = d3.scale.linear()
@@ -49,8 +61,16 @@
                  .range([h - padding, padding]);
 
       var rScale = d3.scale.linear()
-                 .domain([d3.min(dataset, function(d) { return d[1]; }), d3.max(dataset, function(d) { return d[1]; })])
+                 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
                  .range([2, 5]);
+      var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+      // add the tooltip area to the webpage
+      var tooltip = d3.select("body").append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0);
+      //Create scale functions
 
       var cValue = function(d) { return d[0] ;},
           color = d3.scale.category20c();
@@ -62,17 +82,15 @@
             .attr("width", w)
             .attr("height", h);
 
-            // x-axis
-      /*svg.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + h + ")")
-          .call(xAxis)
-        .append("text")
-          .attr("class", "label")
-          .attr("x", w)
-          .attr("y", -6)
-          .style("text-anchor", "end")
-          .text("Calories");*/
+      svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0," + (h - padding) + ")")
+          .call(xAxis);
+      // y-axis
+      svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(" + padding + ",0)")
+          .call(yAxis);
 
       svg.selectAll("circle")
          .data(dataset)
