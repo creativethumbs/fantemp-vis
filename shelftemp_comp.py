@@ -1,33 +1,29 @@
-import string
-import re
-import os
+import string, re, os
 
 # storing temperatures
 temp_array = []
 # stores array of a temperature, fanspeed, and count
 format_array = []
+output = []
 
 def extract(inFile):
-    shelf = 0
-    prevdisk = 0
-
     temp_idx = 0
-    fan_idx = 0
-    format_idx = 0
+    # there are only 4 fans, but sometimes the log file
+    # finds more than that number of fans for whatever reason
     fancount = 0
 
     server = ""
 
     for linenum, line in enumerate(inFile):
-        # turns out that lines that start with a space,
-        # contain the speed for fans that don't even exist...
         if (linenum == 2):
             server = line.split()[-1]
+        # lines that start with a space contain the speed for fans 
+        # that don't even exist...
         elif (linenum > 5 and line[0] != ' '):
             word1 = line.partition(' ')[0]
             if (word1 == "Shelf"):
                 fancount = 0
-                numarray = re.split('[^\d]+', line) #hooray for regular expressions! 
+                numarray = re.split('[^\d]+', line) #hooray for regex! 
                 temperature = int(numarray[-2:][0])
 
                 temp_array.append(temperature)
@@ -37,25 +33,20 @@ def extract(inFile):
                 numarray = re.split('[^\d]+', line)
                 fanspeed = int(numarray[1])
 
-                format_array.append([temp_array[temp_idx-1], fanspeed, 1])
-
-                format_idx += 1
+                format_array.append([temp_array[temp_idx-1], fanspeed, 1, server])
                 fancount += 1
 
-    #print format_array
-
 def getFiles():
-    temp_array = []
     list_dir = filter(lambda x: not x.startswith('.'), os.listdir('shelftemp_logs'))
 
     for filename in list_dir:
+        temp_array = []
         inFile = open('shelftemp_logs/' + filename, 'r')
         extract(inFile)
         inFile.close()
 
 def processList():
-    sorted_array = sorted(format_array, key = lambda x: (x[0], x[1]))
-    output = []
+    sorted_array = sorted(format_array, key = lambda x: (x[0], x[1], x[3]))
     out_idx = 0
 
     for i in range(len(sorted_array)-1):
@@ -68,10 +59,9 @@ def processList():
             out_idx += 1
             output.append(sorted_array[i])
 
-    print output
-
 getFiles()
 processList()
+print output
 #writeToFile()
 
 
