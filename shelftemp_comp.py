@@ -1,19 +1,13 @@
 import string
 import re
-#need this later for extracting file names?
-#import os
-#os.walk(subdir)
+import os
 
-inFile = open('shelftemp_logs/20140611_13-05', 'r')
-outFile = open('output20140611_13-05.txt', 'w')
+# storing temperatures
+temp_array = []
+# stores array of a temperature, fanspeed, and count
+format_array = []
 
-# associative arrays for the temperatures and fans, respectively
-temp_array = [0 for i in range(22)]
-fan_array = [[0 for i in range(4)] for j in range(22)]
-format_array = [[0 for i in range(3)] for j in range(88)]
-
-def extract():
-    global inFile
+def extract(inFile):
     shelf = 0
     prevdisk = 0
 
@@ -22,42 +16,47 @@ def extract():
     format_idx = 0
     fancount = 0
 
+    server = ""
+
     for linenum, line in enumerate(inFile):
         # turns out that lines that start with a space,
         # contain the speed for fans that don't even exist...
-        if (line[0] != ' ' and linenum > 3):
+        if (linenum == 2):
+            server = line.split()[-1]
+        elif (linenum > 5 and line[0] != ' '):
             word1 = line.partition(' ')[0]
             if (word1 == "Shelf"):
                 fancount = 0
                 numarray = re.split('[^\d]+', line) #hooray for regular expressions! 
                 temperature = int(numarray[-2:][0])
 
-                temp_array[temp_idx] = temperature
+                temp_array.append(temperature)
                 temp_idx += 1
             elif (fancount < 4 and word1 == "Actual"):
-                #if fan_idx > 3:
-                #    fan_idx = 0
+
                 numarray = re.split('[^\d]+', line)
                 fanspeed = int(numarray[1])
 
-                #fan_array[temp_idx-1][fan_idx] = fanspeed
-
-                format_array[format_idx] = [temp_array[temp_idx-1], fanspeed, 1]
+                format_array.append([temp_array[temp_idx-1], fanspeed, 1])
 
                 format_idx += 1
                 fancount += 1
-                #fan_idx += 1
 
-def writeToFile():
-    global outFile
-    for elem in format_array:
-        outFile.write(str(elem[0]) + " " + str(elem[1]) + "\n")
+    #print format_array
+
+def getFiles():
+    temp_array = []
+    list_dir = filter(lambda x: not x.startswith('.'), os.listdir('shelftemp_logs'))
+
+    for filename in list_dir:
+        inFile = open('shelftemp_logs/' + filename, 'r')
+        extract(inFile)
+        inFile.close()
 
 def processList():
     sorted_array = sorted(format_array, key = lambda x: (x[0], x[1]))
     output = []
     out_idx = 0
-    print sorted_array
 
     for i in range(len(sorted_array)-1):
         if (i == 0):
@@ -71,15 +70,10 @@ def processList():
 
     print output
 
-
-extract()
+getFiles()
 processList()
 #writeToFile()
 
-inFile.close(), outFile.close()
-#print format_array
-#print temp_array
-#print fan_array
 
 '''
 # counts entries (used for determining array size)
@@ -99,4 +93,10 @@ def count():
     print count
 
 count()
+
+def writeToFile():
+    global outFile
+    for elem in format_array:
+        outFile.write(str(elem[0]) + " " + str(elem[1]) + "\n")
+
 '''
