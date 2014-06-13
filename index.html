@@ -15,13 +15,14 @@
         stroke: #000;
         shape-rendering: crispEdges;
       }
+
       .outer {
-          width: 800px;
+          width: 1000px;
           height: 1600px;
           overflow: auto;
       }
       .inner {
-          width: 800px;
+          width: 1000px;
           height: 1500px;
       }
 
@@ -59,7 +60,7 @@
       var serverdata = [[27, 0, 'sense1'], [26, 7140, 'sense1'], [24, 5100, 'sense1'], [23, 5460, 'sense0'], [22, 5460, 'sense0'], [28, 6660, 'sense0'], [26, 7080, 'sense1'], [27, 7200, 'sense0'], [25, 6960, 'sense0'], [25, 5580, 'sense0'], [26, 6780, 'sense1'], [25, 6660, 'sense0'], [27, 6780, 'sense0'], [25, 5400, 'sense0'], [26, 0, 'sense1'], [27, 6720, 'sense1'], [25, 5100, 'sense1'], [24, 5220, 'sense1'], [25, 4800, 'sense1'], [24, 5340, 'sense1'], [23, 5340, 'sense1'], [26, 6540, 'sense1'], [27, 7080, 'sense0'], [28, 7140, 'sense1'], [26, 6480, 'sense0'], [22, 5220, 'sense1'], [26, 6900, 'sense0'], [24, 5280, 'sense0'], [24, 4860, 'sense0'], [25, 5520, 'sense0'], [24, 5400, 'sense0'], [26, 6840, 'sense0'], [23, 4920, 'sense0'], [27, 6960, 'sense1'], [25, 5220, 'sense1'], [25, 0, 'sense1'], [25, 5340, 'sense1'], [24, 4920, 'sense1'], [27, 6660, 'sense1'], [24, 5460, 'sense1'], [25, 5040, 'sense1'], [26, 6660, 'sense0'], [22, 5520, 'sense1'], [28, 0, 'sense0'], [25, 4860, 'sense0'], [23, 5400, 'sense1'], [26, 6600, 'sense1'], [27, 7140, 'sense1'], [26, 7020, 'sense1'], [28, 7020, 'sense0'], [27, 7020, 'sense0'], [27, 7140, 'sense0'], [24, 4980, 'sense0'], [24, 5520, 'sense0'], [26, 6960, 'sense1'], [27, 6840, 'sense1'], [25, 6840, 'sense1'], [24, 5040, 'sense1'], [27, 6540, 'sense1'], [23, 4980, 'sense0'], [22, 4980, 'sense0'], [25, 5160, 'sense1'], [22, 5400, 'sense1'], [27, 0, 'sense0'], [26, 6720, 'sense0'], [22, 5460, 'sense1'], [26, 7140, 'sense0'], [28, 6660, 'sense1'], [24, 5100, 'sense0'], [23, 5460, 'sense1'], [22, 4920, 'sense0'], [26, 7080, 'sense0'], [27, 7200, 'sense1'], [25, 6960, 'sense1'], [25, 5580, 'sense1'], [26, 6780, 'sense0'], [25, 6660, 'sense1'], [27, 6780, 'sense1'], [27, 6720, 'sense0'], [25, 5400, 'sense1'], [25, 5100, 'sense0'], [26, 0, 'sense0'], [25, 4800, 'sense0'], [23, 5340, 'sense0'], [24, 5220, 'sense0'], [24, 5340, 'sense0'], [26, 6540, 'sense0'], [27, 7080, 'sense1'], [26, 6480, 'sense1'], [27, 6840, 'sense0'], [26, 6900, 'sense1'], [28, 7140, 'sense0'], [24, 5280, 'sense1'], [24, 4860, 'sense1'], [24, 5400, 'sense1'], [22, 5220, 'sense0'], [26, 6840, 'sense1'], [25, 5520, 'sense1'], [27, 6960, 'sense0'], [25, 5220, 'sense0'], [25, 0, 'sense0'], [25, 5340, 'sense0'], [23, 4920, 'sense1'], [27, 6660, 'sense0'], [25, 5040, 'sense0'], [26, 6660, 'sense1'], [24, 4920, 'sense0'], [24, 5460, 'sense0'], [28, 0, 'sense1'], [23, 5400, 'sense0'], [22, 5520, 'sense0'], [28, 7020, 'sense1'], [25, 4860, 'sense1'], [26, 6600, 'sense0'], [24, 4980, 'sense1'], [26, 7020, 'sense0'], [24, 5520, 'sense1'], [27, 7020, 'sense1'], [22, 4920, 'sense1'], [26, 6960, 'sense0'], [25, 6840, 'sense0'], [27, 6540, 'sense0'], [22, 4980, 'sense1'], [25, 5160, 'sense0'], [24, 5040, 'sense0'], [23, 4980, 'sense1'], [22, 5400, 'sense0'], [26, 6720, 'sense1']]
 
 
-      //Width and height
+      //Width and height of the graph
       var w = 800;
       var h = 1500;
       var padding = 80;
@@ -88,10 +89,14 @@
       var cValue = function(d) { return d[2];},
           color = d3.scale.category10();
 
-      var colors = [ ["sense0", "#377EB8"],
-               ["sense1", "#4DAF4A"] ];
+      var colors = [ ["sense0", '#377EB8' ], ["sense1", "#4DAF4A"] ];
 
       //Create SVG element
+      var svg2 = d3.select('svg')
+            .append("svg")
+            .append("g")
+            .attr("width", w)
+            .attr("height", h);
       var svg = d3.select('svg')
             .append("svg")
             .append("g")
@@ -99,7 +104,7 @@
             .attr("height", h);
 
       // x-axis 
-      svg.append("g")
+      svg2.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(0," + (h - padding) + ")")
           .call(xAxis)
@@ -110,7 +115,7 @@
           .style("text-anchor", "end")
           .text("Temperature");
       // y-axis
-      svg.append("g")
+      svg2.append("g")
           .attr("class", "axis")
           .attr("transform", "translate(" + padding + ",0)")
           .call(yAxis)
@@ -122,7 +127,17 @@
           .style("text-anchor", "end")
           .text("Fan Speed");
 
-      // circles
+      // more circles
+      svg2.selectAll("circle")
+         .data(serverdata)
+         .enter()
+         .append("circle")
+         .attr("cx", function(d) {return xScale(d[0]);})
+         .attr("cy", function(d) {return yScale(d[1]);})
+         .attr("r", 4)
+         .style("fill", function(d) { return color(cValue(d));});
+
+      // circles (invisible)
       svg.selectAll("circle")
          .data(countdata)
          .enter()
@@ -130,8 +145,7 @@
          .attr("cx", function(d) {return xScale(d[0]);})
          .attr("cy", function(d) {return yScale(d[1]);})
          .attr("r", 4)
-         //.style("fill", function(d) { return color(cValue(d));})
-         .style("fill", d3.rgb("#FF3D6E"))
+         .style("opacity", 0)
          .on("mouseover", function(d) {      
             tooltip.transition()        
                 .duration(200)      
@@ -148,15 +162,33 @@
                   .style("opacity", 0);   
           });
 
-          // add legend   
+      // add legend   
       var legend = svg.append("g")
         .attr("class", "legend")
         .attr("height", 100)
         .attr("width", 100)
-        .attr('transform', 'translate(-20,50)')    
+        .attr('transform', 'translate(-20,50)');
+
+        legend.selectAll('rect')
+          .data(color.domain())
+          .enter()
+          .append("rect")
+          .attr("x", w + 40)
+          .attr("y", function(d, i){ return i *  20;})
+          .attr("width", 10)
+          .attr("height", 10)
+          .style("fill", color);
+          
+        legend.selectAll('text')
+          .data(color.domain())
+          .enter()
+          .append("text")
+          .attr("x", w + 60)
+          .attr("y", function(d, i){ return i *  20 + 9;})
+          .text(function(d) { return d; });   
           
         
-        legend.selectAll('rect')
+        /*legend.selectAll('rect')
           .data(colors)
           .enter()
           .append("rect")
@@ -164,7 +196,7 @@
           .attr("y", function(d, i){ return i *  20;})
         .attr("width", 10)
         .attr("height", 10)
-        .style("fill", function(d){ return d[1]; })
+        .style("fill", function(d){ return d[1] })
           
         legend.selectAll('text')
           .data(colors)
@@ -172,7 +204,7 @@
           .append("text")
         .attr("x", w - 52)
           .attr("y", function(d, i){ return i *  20 + 9;})
-        .text(function(d) { return d[0]; });
+        .text(function(d) { return d[0]; });*/
 
     </script>
   </body>
