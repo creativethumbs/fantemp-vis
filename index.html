@@ -29,10 +29,12 @@
 
       .tooltip {
         position: absolute;
-        width: 200px;
-        height: 48px;
-        background-color: #DEDEDE; 
-        color: #525252;
+        width: 120px;
+        height: 50px;
+        background-color: #595959; 
+        color: #FFFFFF;
+        padding: 8px;
+        border-radius: 8px;   
         pointer-events: none;
       }
 
@@ -93,7 +95,7 @@
       var color = d3.scale.quantize()
                     .domain([d3.min(countdata, function(d) { return d[2]; })*0.5, 
                           d3.max(countdata, function(d) { return d[2]; })*0.75])
-                    .range(colorbrewer.OrRd[9]);
+                    .range(colorbrewer.BuPu[9]);
 
       var colors = [ ["sense0", '#377EB8' ], ["sense1", "#4DAF4A"] ];
 
@@ -108,6 +110,12 @@
             .append("g")
             .attr("width", w)
             .attr("height", h);
+
+      // bg
+      svg2.append("rect")
+          .attr("width", "100%")
+          .attr("height", "100%")
+          .attr("fill", "#DEDCD9");
 
       // x-axis 
       svg2.append("g")
@@ -149,7 +157,7 @@
                           "<br/>"  + "Fan Speed: " + d[1] +
                           "<br/>" + "Count: " + d[2])  
                 .style("left", (d3.event.pageX) + "px")     
-                .style("top", (d3.event.pageY - 28) + "px");    
+                .style("top", (d3.event.pageY - 58) + "px");    
             })                  
           .on("mouseout", function(d) {       
               tooltip.transition()        
